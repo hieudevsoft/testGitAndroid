@@ -11,7 +11,8 @@ class MainActivity : AppCompatActivity() {
         //This is a test comment
 
 
-        //Resolve conflict nha
+        // Toa van cu tao conflict
+        
 
     }
 }
