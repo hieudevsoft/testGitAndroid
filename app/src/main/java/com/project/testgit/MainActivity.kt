@@ -10,8 +10,7 @@ class MainActivity : AppCompatActivity() {
 
         //This is a test comment
 
-
-        //Resolve conflict nha
+       //Tao add them dong nay vao day nhe
 
     }
 }
