@@ -17,10 +17,6 @@ class MainActivity : AppCompatActivity() {
         // Toa van cu tao conflict
 
         //pull ve cho t
-
-        // Khac nua ne
-        them noi vao git
-
-       
+        àkjdfjf
     }
 }
