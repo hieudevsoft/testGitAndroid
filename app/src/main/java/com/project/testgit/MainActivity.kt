@@ -13,7 +13,7 @@ import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 
 
-//Somethings like that
+//Change 2 commit
 //Experimental
 
 class MainActivity : AppCompatActivity() {
