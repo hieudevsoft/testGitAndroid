@@ -14,7 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 
 
 //Somethings like that
-
+// Git revert ne
 
 class MainActivity : AppCompatActivity() {
     companion object {
