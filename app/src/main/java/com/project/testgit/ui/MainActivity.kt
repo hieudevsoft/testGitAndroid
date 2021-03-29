@@ -1,22 +1,25 @@
-package com.project.testgit
+package com.project.testgit.ui
 
 import android.os.Build
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.view.Window
 import android.view.WindowInsets
 import android.view.WindowInsetsController
-import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
+import com.project.testgit.data.Quote
+import com.project.testgit.databinding.ActivityMainBinding
+import com.project.testgit.ultilities.InjectorUltils
 
 
-//Change 1 commit
-//Pull
-//create pull request
 class MainActivity : AppCompatActivity() {
+    lateinit var _binding: ActivityMainBinding
+    private val binding get() = _binding
+    private lateinit var factory: QuoteViewModelFactory
+    private lateinit var viewModel: QuoteViewModel
+
     companion object {
         private const val TAG = "MainActivity"
     }
@@ -24,55 +27,64 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        _binding = ActivityMainBinding.inflate(layoutInflater)
         requestWindowFeature(Window.FEATURE_NO_TITLE)
-        setContentView(R.layout.activity_main)
-        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.R){
+        setContentView(binding.root)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             val windowController = window.insetsController
             windowController?.hide(WindowInsets.Type.statusBars())
             windowController?.hide(WindowInsets.Type.navigationBars())
             windowController?.hide(WindowInsets.Type.captionBar())
             windowController?.hide(WindowInsetsController.BEHAVIOR_SHOW_BARS_BY_SWIPE)
-        }else
-        {
+        } else {
             supportActionBar?.hide()
             window.decorView.apply {
-                systemUiVisibility  =  View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_FULLSCREEN
+                systemUiVisibility =
+                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_FULLSCREEN
             }
         }
-        findViewById<EditText>(R.id.testText).addTextChangedListener(
-            object : TextWatcher{
-                override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int
-                ) {
-
-                }
-
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                      window.decorView.systemUiVisibility =
-                                         (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                                         or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                                         or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                                         or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                                         or View.SYSTEM_UI_FLAG_FULLSCREEN
-                                         or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
-                }
-
-                override fun afterTextChanged(s: Editable?) {
-
-                }
-
-            }
-        )
         Log.d(TAG, "onCreate: OnCreate")
+        factory = InjectorUltils.provideQuoteViewModelFactory()
+        viewModel = ViewModelProvider(this, factory).get(QuoteViewModel::class.java)
+        initUi()
+    }
+
+    private fun initUi() {
+        viewModel.getQuotes().observe(this) { quotes ->
+            retrieverData()
+        }
+        binding.buttonAddQuote.setOnClickListener {
+            val quote = Quote(
+                binding.editTextQuote.text.toString().trim(),
+                binding.editTextAuthor.text.toString()
+            )
+            viewModel.addQuote(quote)
+            binding.editTextAuthor.text.clear()
+            binding.editTextQuote.text.clear()
+        }
+        binding.refreshLayout.setOnRefreshListener {
+            viewModel.clearListQuote()
+            retrieverData()
+        }
+    }
+
+    private fun retrieverData() {
+        viewModel.getQuotes().observe(this) { quotes ->
+            binding.refreshLayout.isRefreshing = false
+            val stringBuilder = StringBuilder()
+            quotes.forEach {
+                stringBuilder.append("$it \n\n")
+                Log.d(TAG, "initUi: ${viewModel.getQuotes().value?.size}")
+            }
+            binding.textViewQuotes.text = stringBuilder
+        }
     }
 
     override fun onStart() {
         supportActionBar?.hide()
         window.decorView.apply {
-            systemUiVisibility  =  View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_FULLSCREEN
+            systemUiVisibility =
+                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_FULLSCREEN
         }
         super.onStart()
         Log.d(TAG, "onStart: OnStart")
